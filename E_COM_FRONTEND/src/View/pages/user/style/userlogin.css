@@ -1,0 +1,9 @@
+.login_user{
+    max-width: 700px;
+    margin-top: 2em;
+    border: 2px solid red;
+    border-radius: 2em;
+}
+.login_user h1{
+    text-align: center;
+}

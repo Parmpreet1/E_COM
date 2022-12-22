@@ -1,0 +1,12 @@
+.footer {
+  height: 10vh;
+  width: 100%;
+  background-color: black;
+  color: white;
+  height: 20vh;
+  margin-bottom: 0;
+}
+p {
+  position: relative;
+  top: 8vh;
+}

@@ -1,0 +1,12 @@
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2em;
+  text-align: center;
+}
+.card {
+  margin: 2em 0 2em 0;
+  padding: 0.5em;
+  /* box-shadow: 2px 2px 5px red; */
+}

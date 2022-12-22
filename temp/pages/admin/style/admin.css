@@ -1,0 +1,22 @@
+/* Login Page */
+.login_form{
+    border: 3px solid white;
+    max-width: 700px;
+    border-radius: 1.4em;
+    margin: auto;
+    margin-top: 2em;
+    padding: 2em;
+    color: wheat;
+}
+/* Add_product  */
+.add_pro_form{
+    max-width: 800px;
+    margin: auto;
+    margin-top: 2em;
+    margin-bottom: 2em;
+    border: 2px solid red;
+    border-radius: 2em;
+    padding: 2em;
+    color: black;
+    background-color: white;
+}

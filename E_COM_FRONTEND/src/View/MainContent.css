@@ -1,0 +1,9 @@
+.content{
+    height: auto;
+    background-image:url("../assets/background.jpg");
+    background-size: cover;
+    background-position: fixed;
+    min-height: 90vh;
+    padding: 1em;
+    border: 2px solid red;
+}
