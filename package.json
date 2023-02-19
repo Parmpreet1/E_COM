@@ -5,7 +5,8 @@
   "main": "./E_COM_BACKEND/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon E_COM_BACKEND/server.mjs"
+    "start": "node E_COM_BACKEND/server.mjs",
+    "dev": "nodemon E_COM_BACKEND/server.mjs"
   },
   "author": "Parm Sohi",
   "license": "ISC",
