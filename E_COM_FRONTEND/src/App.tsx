@@ -15,10 +15,10 @@ function App() {
       <AdminProvider>
         <UserProvider>
           <Navbar />
-          <MainContent content={<Home />} />
+          <MainContent />
           <Footer />
         </UserProvider>
-      </AdminProvider>
+        </AdminProvider>
     </>
   );
 }

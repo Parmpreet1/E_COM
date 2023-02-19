@@ -6,7 +6,7 @@
   height: 20vh;
   margin-bottom: 0;
 }
-p {
+.footer p {
   position: relative;
   top: 8vh;
 }

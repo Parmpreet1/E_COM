@@ -27,7 +27,7 @@ export const UpdateProduct = () => {
   
   return (
     <>
-      <div className=" container-fluid bg-light">
+      <div className=" container-fluid bg-light rounded-4">
         <div className="row">
         {singleProduct ? (<>
           <div className="col d-flex justify-content-center">

@@ -1,15 +1,26 @@
 import React, { useContext } from "react";
 import ecom_logo from "../../assets/ecom_logo.png";
 import "./Style/nav.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { userContext } from "../../Modal/contextApi/userContext";
 import { adminContext } from "../../Modal/contextApi/adminContext";
+import { CartCard } from "./CartCard";
+import { Cart } from "./Cart";
+import { useDispatch, useSelector } from "react-redux";
+import { userAction } from "../../Controller/features/user/userSlice";
+import axios from "axios";
+import { cartAction } from "../../Controller/features/user/CartSlice";
 export const Navbar = () => {
-  const user = useContext(userContext);
+  const {user}=useSelector((state)=>state)
+  const dispatch=useDispatch()
+  // const user = useContext(userContext);
   const admin = useContext(adminContext);
-  // let isAdmin = false;
-  // let isAdmin = true;
-  // let isLogged=false
+  const [Search, setSearch] = admin.SearchState;
+  const onSearch = (e) => {
+    e.preventDefault();
+    admin.displayproducts();
+  };
+  const navigate=useNavigate()
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
       <div className="container-fluid">
@@ -38,43 +49,23 @@ export const Navbar = () => {
               <form className="d-flex">
                 <input
                   className="form-control me-2 nav_search_bar"
+                  style={{ width: "400px", marginLeft: "2vw" }}
                   type="search"
                   placeholder="Search"
                   aria-label="Search"
+                  value={Search}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                  }}
                 />
-                <button className="btn btn-outline-success" type="submit">
+                <button
+                  className="btn btn-outline-success"
+                  type="submit"
+                  onClick={onSearch}
+                >
                   Search
                 </button>
               </form>
-            </li>
-            <li className="nav-item dropdown">
-              <a
-                className="nav-link dropdown-toggle active"
-                href="#"
-                id="navbarDropdown"
-                role="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                Product Category
-              </a>
-              <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
-                <li>
-                  <a className="dropdown-item" href="#">
-                    Clothes
-                  </a>
-                </li>
-                <li>
-                  <a className="dropdown-item" href="#">
-                    Laptops
-                  </a>
-                </li>
-                <li>
-                  <a className="dropdown-item" href="#">
-                    Smart Phones
-                  </a>
-                </li>
-              </ul>
             </li>
           </ul>
           {/*right side items */}
@@ -89,24 +80,42 @@ export const Navbar = () => {
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
                 >
-                  User
+                  {user.isLogged?<img src={user.profile.profilePic} alt="" style={{height:"25px", width:"25px"}} className="rounded-4 mx-2"/>:""}{user.isLogged?(user.profile.name):"User"}
                 </a>
                 <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <div>
+                   <li className={user.isLogged ? "" : "d-none"}>
+                    <Link className="dropdown-item" to={"/user_profile"}>
+                      My Profile
+                    </Link>
+                  </li>
+                  <li className={user.isLogged ? "" : "d-none"}>
+                    <Link className="dropdown-item" to={"/user_orders"}>
+                      Orders
+                    </Link>
+                  </li> 
+                  </div>
                   <li className={user.isLogged ? "d-none" : ""}>
                     <Link className="dropdown-item" to={"/user_login"}>
                       Login
                     </Link>
                   </li>
                   <li className={user.isLogged ? "d-none" : ""}>
-                    <a className="dropdown-item" href="#">
+                    <Link className="dropdown-item" to={'/user_signup'}>
                       Sign up
-                    </a>
+                    </Link>
                   </li>
                   <li className={user.isLogged ? "" : "d-none"}>
                     <button
                       className="dropdown-item"
-                      onClick={() => {
-                        user.logout();
+                      onClick={async() => {
+                        const {cart,wishlist}=user
+                        const updatedData={cart,wishlist}
+                        const response=await axios.put(`/user/${user.profile.email}`,updatedData)
+                        console.log("during logout response of updated data",response)
+                        dispatch(userAction.logout())
+                        dispatch(cartAction.initializeCart([]))
+                        navigate('/user_login')
                       }}
                     >
                       Log out
@@ -114,18 +123,22 @@ export const Navbar = () => {
                   </li>
                 </ul>
               </li>
-              <li className="nav-item">
-                <a className="nav-link active" href="#">
-                  Shopping Cart
-                </a>
+              <li className={user.isLogged ? "" : "d-none"}>
+                    <Link className=" nav-link active" to={"/user_wishlist"}>
+                      Wishlist
+                    </Link>
+                  </li>
+              <li className={user.isLogged ? "" : "d-none"}>
+                <Cart/>
               </li>
+              
             </div>
             <li className={`nav-item ${admin.isAdmin ? "d-block" : "d-none"}`}>
               <Link className="nav-link active" to={"/add_product"}>
                 Add Product
               </Link>
             </li>
-            <li className="nav-item">
+            {/* <li className="nav-item">
               <Link
                 className={`nav-link active ${admin.isAdmin ? "d-none" : ""} ${
                   user.isLogged ? "d-none" : ""
@@ -134,7 +147,7 @@ export const Navbar = () => {
               >
                 ADMIN
               </Link>
-            </li>
+            </li> */}
             <li className={`nav-item ${admin.isAdmin ? "d-block" : "d-none"}`}>
               <Link className={`nav-link active`} to={"/"}>
                 Manage products

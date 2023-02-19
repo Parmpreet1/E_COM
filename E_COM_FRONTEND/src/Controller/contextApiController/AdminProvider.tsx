@@ -1,15 +1,44 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
+import { Navigate, useNavigate } from "react-router-dom";
 import { adminContext } from "../../Modal/contextApi/adminContext";
 const baseurl = "/products";
-export const AdminProvider = ({ children }) => {
+export const AdminProvider = memo(({ children }:any) => {
   const [isAdmin, setisAdmin] = useState(false);
   const [apiResponse, setapiResponse] = useState({ data: [], message: "" });
-  const login = () => {
-    setisAdmin(true);
+  const FileChangeState= useState(false);
+  const [isFileChange, setisFileChange]=FileChangeState 
+  const SearchState = useState("")
+  const navigate=useNavigate()
+  const login = async(formData:Object) => {
+    try{
+      const response=await axios.post('/adminLogin',formData)
+      console.log(response)
+      if(response.data[0]){
+        setisAdmin(true);
+        sessionStorage.setItem('isAdmin','true')
+        navigate('/adminDashboard')
+      }
+      else{
+        alert("Invalid email or password")
+      }
+    }
+    catch(err){
+      alert(`Error in admin login: ${err}`)
+    }
   };
-  const logout = () => {
-    setisAdmin(false);
+  const logout = async() => {
+    try{
+      const response=await axios.get('/adminLogout')
+      setisAdmin(false)
+      sessionStorage.setItem('isAdmin','false')
+      console.log(response)
+      navigate("/admin")
+    }
+    catch(err){
+      alert(`server error in session destroy ${err}`)
+    }
+
   };
   const check_login = () => {};
 
@@ -19,7 +48,7 @@ export const AdminProvider = ({ children }) => {
         headers: { "Content-Type": "multipart/form-data" },
       });
       displayproducts();
-      console.log("Product updated successful")
+      console.log(response)
       return response
     }
     catch(err){
@@ -29,8 +58,13 @@ export const AdminProvider = ({ children }) => {
   const delete_product = async (_id: String) => {
     try {
       if (confirm("Are you realy want to delete this product ?")) {
-        await axios.delete(`/products/${_id}`);
-        displayproducts();
+        let response=await axios.delete(`/products/${_id}`);
+        if (response.data.message){
+          alert(`"server error " ${response.data.message}`)
+        }
+        else{
+          displayproducts();
+        }
       }
     } catch (err) {
       console.log(err);
@@ -39,12 +73,15 @@ export const AdminProvider = ({ children }) => {
   };
   const displayproducts = async () => {
     try{
-      const response: resType = await axios.get(`${baseurl}`);
+      const searchQuery=`?search=${SearchState[0]}`
+      const response: resType = await axios.get(`${baseurl}${searchQuery}`);
       console.log(response);
       setapiResponse(response);
     }
     catch(err){
       setapiResponse(err)
+      //electrics  mens clothes women clothes
+      // arr.filter((elemet)=>{})
     }
   };
   const getSingleProduct = async (_id: String) => {
@@ -71,6 +108,8 @@ export const AdminProvider = ({ children }) => {
     );
   //api data
   useEffect(() => {
+    let value=sessionStorage.getItem('isAdmin')
+    setisAdmin(value=="true")
     displayproducts();
   }, []);
   return (
@@ -84,15 +123,17 @@ export const AdminProvider = ({ children }) => {
         add_product,
         displayproducts,
         getSingleProduct,
+        SearchState,
         apiResponse,
         formDataState,
         isAdmin,
+        FileChangeState
       }}
     >
       {children}
     </adminContext.Provider>
   );
-};
+});
 type resType = {
   data: [];
   message: "";

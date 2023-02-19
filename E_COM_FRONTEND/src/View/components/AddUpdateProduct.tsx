@@ -6,13 +6,14 @@ import "./Style/addUpdateProduct.css";
 export const AddUpdateProduct = ({ taskName }) => {
   const admin = useContext(adminContext);
   const [FormData, setFormData] = admin.formDataState;
-  const [isFileChange, setisFileChange] = useState(false);
-
+  const [isFileChange, setisFileChange] = admin.FileChangeState
+  const required=taskName=="Add Product"?true:false
+ 
   useEffect(() => {
+    console.log("req : ",required)
     setFormData(() => {
       return {
-        image: {},
-        id: "",
+        image: null,
         title: "",
         description: "",
         stock: "",
@@ -20,9 +21,13 @@ export const AddUpdateProduct = ({ taskName }) => {
         category: "",
       };
     }, [taskName]);
-  }, []);
+    return()=>{
+      setisFileChange(false)
+    }
+  }, [taskName]);
 
   const onChangeHandler = (e) => {
+    e.preventDefault()
     let { name, value } = e.target;
     if (name == "image") {
       value = e.target.files[0];
@@ -35,24 +40,35 @@ export const AddUpdateProduct = ({ taskName }) => {
   };
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (!isFileChange) {
-      setFormData((pre) => {
-        delete pre.image;
-        return pre;
-      });
-    }
+    
     if (confirm("Are you want to add this data?")) {
+      if (!isFileChange) {
+        setFormData((pre) => {
+          delete pre.image;
+          return pre;
+        });
+      }
       try {
         let response;
         if (taskName == "Update Product") {
           console.log("client side form data: ", FormData);
           response = await admin.updateproduct(FormData);
-          console.log("Product updated ", response);
-          alert(`Product updated `);
+          if (response.data.message){
+            alert(`"server error " ${response.data.message}`)
+          }
+          else{
+            console.log("Product updated ", response);
+            alert(`Product updated `);
+          }
         } else if (taskName == "Add Product") {
           response = await admin.add_product(FormData);
-          console.log("Product added", response);
-          alert(`Product Added `);
+          if (response.data.message){
+            alert(`"server error " ${response.data.message}`)
+          }
+          else{
+            console.log("Product added", response);
+            alert(`Product Added `);
+          }
         }
       } catch (err) {
         alert(`Some things went worng in modification: ${err.message}`);
@@ -76,19 +92,7 @@ export const AddUpdateProduct = ({ taskName }) => {
             placeholder="Add product image"
             name="image"
             onChange={onChangeHandler}
-          />
-        </div>
-        <div className="mb-3">
-          Id
-          <input
-            type="number"
-            className="form-control"
-            id="exampleInputEmail1"
-            aria-describedby="emailHelp"
-            placeholder="Enter product id"
-            name="id"
-            value={FormData.id}
-            onChange={onChangeHandler}
+            required={required}
           />
         </div>
         <div className="mb-3">
@@ -101,6 +105,7 @@ export const AddUpdateProduct = ({ taskName }) => {
             name="title"
             value={FormData.title}
             onChange={onChangeHandler}
+            required={required}
           />
         </div>
         <div className="mb-3">
@@ -113,6 +118,7 @@ export const AddUpdateProduct = ({ taskName }) => {
             name="description"
             value={FormData.description}
             onChange={onChangeHandler}
+            required={required}
           />
         </div>
         <div className="mb-3">
@@ -125,6 +131,7 @@ export const AddUpdateProduct = ({ taskName }) => {
             name="stock"
             value={FormData.stock}
             onChange={onChangeHandler}
+            required={required}
           />
         </div>
         <div className="mb-3">
@@ -137,6 +144,7 @@ export const AddUpdateProduct = ({ taskName }) => {
             name="price"
             value={FormData.price}
             onChange={onChangeHandler}
+            required={required}
           />
         </div>
         <div>
@@ -146,16 +154,17 @@ export const AddUpdateProduct = ({ taskName }) => {
             aria-label="Default select example"
             name="category"
             value={FormData.category}
-            defaultValue={"none"}
             onChange={onChangeHandler}
+            required={required}
           >
             <option defaultValue={"none"} disabled>
               Select product category
             </option>
-            <option defaultValue={"none"}>none</option>
-            <option value="electronic">Electronic</option>
-            <option value="man_clothes">Man clothes</option>
-            <option value="women_clothes">Women clothes</option>
+            <option value={"none"}>none</option>
+            <option value={"electronics"}>Electronics</option>
+            <option value={"jewelery"}>Jewelery</option>
+            <option value={"men_clothes"}>Man clothes</option>
+            <option value={"women_clothes"}>Women clothes</option>
           </select>
         </div>
         <br />

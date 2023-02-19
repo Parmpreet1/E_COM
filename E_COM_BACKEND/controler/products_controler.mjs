@@ -1,6 +1,7 @@
 import fs from "fs";
 import products_col from "../modal/database_mongo.mjs";
 import mongoose from "mongoose";
+// import Regex from "regex";
 class product_manage {
   //display products
   async display_products(req, res) {
@@ -9,12 +10,13 @@ class product_manage {
       data = await products_col.find({
         _id: mongoose.Types.ObjectId(req.params._id),
       });
-    } 
-    
-    else if(req.query.category){
-
-    }
-    else {
+    } else if (req.query.search) {
+      const search = req.query.search;
+      console.log("search ", search);
+      data = await products_col.find({
+        $or: [{ title: { $regex: search,$options:"i"}}],
+      });
+    } else {
       data = await products_col.find({});
     }
     // let file = Buffer.from(data[4].image.data,'base64')
@@ -24,22 +26,30 @@ class product_manage {
   }
   //Add New Products
   async add_products(req, res) {
-    const b_data = req.body;
+    let b_data = req.body;
+    // console.log("body data in add :",b_data)
     try {
       let img_base64 = fs.readFileSync(req.file.path).toString("base64");
-      const data = {
-        id: parseInt(b_data.id),
+      b_data = {
+        ...b_data,
         image: {
           data: img_base64,
           content_type: req.file.mimetype,
         },
-        title: b_data.title,
-        description: b_data.description,
-        category: b_data.category,
-        price: parseInt(b_data.price),
-        stock: parseInt(b_data.stock),
       };
-      const result = new products_col(data);
+
+      const result = new products_col(b_data);
+      // const data = {
+      //   image: {
+      //     data: img_base64,
+      //     content_type: req.file.mimetype,
+      //   },
+      //   title: b_data.title,
+      //   description: b_data.description,
+      //   category: b_data.category,
+      //   price: parseInt(b_data.price),
+      //   stock: parseInt(b_data.stock),
+      // };
       await result.save();
       res.send(result);
     } catch (err) {
@@ -52,20 +62,12 @@ class product_manage {
       const b_data = req.body;
       console.log("body in update:", b_data);
       const data = {
-        id: parseInt(b_data.id),
         title: b_data.title,
         description: b_data.description,
         category: b_data.category,
         price: parseInt(b_data.price),
         stock: parseInt(b_data.stock),
       };
-      if (req.file?.path) {
-        let img_base64 = fs.readFileSync(req.file.path).toString("base64");
-        data.image = {
-          data: img_base64,
-          content_type: req.file.mimetype,
-        };
-      }
       const response = await products_col.updateOne(
         { _id: mongoose.Types.ObjectId(req.params._id) },
         { $set: data }
